@@ -1,51 +1,22 @@
-import { useForm } from "react-hook-form";
-import { atom, useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
+import { toDoState } from "../atoms";
+import CreateToDo from "./CreateToDo";
+import ToDo from "./ToDo";
 
-interface IForm {
-  toDo: string;
-}
-interface IToDo {
-  text: string;
-  id: number;
-  category: "TO_DO" | "DOING" | "DONE";
-}
-
-const toDoState = atom<IToDo[]>({
-  key: "toDo",
-  default: [],
-});
-
+// state 값을 주시하는 페이지
 function ToDoList() {
-  const [toDos, setTodos] = useRecoilState(toDoState);
-
-  const { register, handleSubmit, setValue } = useForm<IForm>();
-
-  const handleValid = ({ toDo }: IForm) => {
-    setTodos((oldToDos) => [
-      { text: toDo, id: Date.now(), category: "TO_DO" },
-      ...oldToDos,
-    ]);
-    setValue("toDo", "");
-  };
+  const toDos = useRecoilValue(toDoState);
 
   return (
     <div>
       <h1>To Do List</h1>
 
-      <hr />
+      <CreateToDo />
 
-      <form onSubmit={handleSubmit(handleValid)}>
-        <input
-          {...register("toDo", { required: "Plz write a to do" })}
-          placeholder="Write a to do"
-          type="text"
-        />
-
-        <button>Add</button>
-      </form>
       <ul>
         {toDos.map((toDo) => (
-          <li key={toDo.id}>{toDo.text}</li>
+          <ToDo key={toDo.id} {...toDo} />
+          // toDos 배열의 toDo 원소가 ToDo 컴포넌트에 필요한 props와 같아서 가능 (IToDo)
         ))}
       </ul>
     </div>
