@@ -1,41 +1,34 @@
-import { useRecoilValue } from "recoil";
-import { toDoSelector, toDoState } from "../atoms";
+import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { categoryState, toDoSelector } from "../atoms";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
 
 // state 값을 주시하는 페이지
 function ToDoList() {
-  const [todo, doing, done] = useRecoilValue(toDoSelector);
+  const toDos = useRecoilValue(toDoSelector);
 
+  const [category, setCategory] = useRecoilState(categoryState);
+  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
+    setCategory(event.currentTarget.value);
+  };
   return (
     <div>
       <h1>To Do List</h1>
 
+      <form action="">
+        <select value={category} onInput={onInput}>
+          <option value="TO_DO">TO_DO</option>
+          <option value="DOING">DOING</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </form>
+
       <CreateToDo />
 
-      <h2>To do</h2>
-      <ul>
-        {todo.map((toDo) => (
-          <ToDo key={toDo.id} {...toDo} />
-          // toDos 배열의 toDo 원소가 ToDo 컴포넌트에 필요한 props와 같아서 가능 (IToDo)
-        ))}
-      </ul>
-
-      <hr />
-      <h2>Doing</h2>
-      <ul>
-        {doing.map((toDo) => (
-          <ToDo key={toDo.id} {...toDo} />
-        ))}
-      </ul>
-
-      <hr />
-      <h2>Done</h2>
-      <ul>
-        {done.map((toDo) => (
-          <ToDo key={toDo.id} {...toDo} />
-        ))}
-      </ul>
+      {toDos?.map((toDo) => (
+        <ToDo key={toDo.id} {...toDo} />
+      ))}
     </div>
   );
 }

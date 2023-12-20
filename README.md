@@ -186,4 +186,46 @@ export const toDoSelector = selector({
 const [todo, doing, done] = useRecoilValue(toDoSelector);
 ```
 
-###
+## 새로운 state 만들기 : 사용자가 현재 저장한 카테고리
+
+```ts
+// atoms.tsx
+export const categoryState = atom({
+  key: "category",
+  default: "TO_DO",
+});
+
+export const toDoSelector = selector({
+  key: "toDoSelector",
+  get: ({ get }) => {
+    const toDos = get(toDoState);
+    const category = get(categoryState);
+    return toDos.filter((toDo) => toDo.category === category);
+  },
+});
+
+// ToDoList.tsx
+function ToDoList() {
+  const toDos = useRecoilValue(toDoSelector);
+
+  const [category, setCategory] = useRecoilState(categoryState);
+  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
+    setCategory(event.currentTarget.value);
+  };
+  return (
+    <div>
+      <form action="">
+        <select value={category} onInput={onInput}>
+          <option value="TO_DO">TO_DO</option>
+          <option value="DOING">DOING</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </form>
+
+      {toDos?.map((toDo) => (
+        <ToDo key={toDo.id} {...toDo} />
+      ))}
+    </div>
+  );
+}
+```
