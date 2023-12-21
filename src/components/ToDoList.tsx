@@ -1,35 +1,48 @@
-import React from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { Categories, categoryState, toDoSelector } from "../atoms";
+import { useEffect } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { toDoSelector, toDoState } from "../atoms";
+import styled from "styled-components";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
+import CategoryToDo from "./CategoryToDo";
+
+const Section = styled.section`
+  max-width: 360px;
+  text-align: center;
+  margin: auto;
+`;
+const Title = styled.h1`
+  text-align: center;
+  font-weight: 600;
+  padding: 1rem;
+`;
 
 // state 값을 주시하는 페이지
 function ToDoList() {
+  const setToDos = useSetRecoilState(toDoState);
   const toDos = useRecoilValue(toDoSelector);
 
-  const [category, setCategory] = useRecoilState(categoryState);
-  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
-    setCategory(event.currentTarget.value as any);
-  };
+  /* 할일 가져오기*/
+  useEffect(() => {
+    // localStorage에 저장된 key:todos를 검색하고, 배열로 만들어 storedTodos 넣기
+    const storedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
+    // 배열로 만들어진 storedTodos를 setToDos에 보내
+    setToDos(storedTodos);
+  }, [setToDos]);
+
   return (
-    <div>
-      <h1>To Do List</h1>
+    <Section>
+      <Title>To Do List</Title>
 
-      <form action="">
-        <select value={category} onInput={onInput}>
-          <option value={Categories.TO_DO}>TO_DO</option>
-          <option value={Categories.DOING}>DOING</option>
-          <option value={Categories.DONE}>DONE</option>
-        </select>
-      </form>
-
+      <CategoryToDo />
       <CreateToDo />
 
-      {toDos?.map((toDo) => (
-        <ToDo key={toDo.id} {...toDo} />
-      ))}
-    </div>
+      <ul>
+        {toDos?.map((toDo) => (
+          <ToDo key={toDo.id} {...toDo} />
+        ))}
+      </ul>
+    </Section>
   );
 }
 

@@ -56,8 +56,8 @@ table {
 }
 body {
   font-family: 'Roboto', sans-serif;
-  background-color:${(props) => props.theme.bgColor};
-  color:${(props) => props.theme.textColor};
+  background-color:${(props) => props.theme.bg};
+  color:${(props) => props.theme.text};
   line-height: 1.5;
 }
 a {
