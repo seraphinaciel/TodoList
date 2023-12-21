@@ -3,11 +3,8 @@
 - react: "18.2.0",
 - react-router-dom: "6.20.0",
 - react-query: "3.39.3",
-- react-helmet: "6.1.0",
 - @tanstack/react-query: "^5.8.9",
 - typescript: "4.9.5",
-- styled-components: "6.1.1",
-- apexcharts: "3.44.0",
 - react-apexcharts: "1.4.1",
 - recoil: "0.7.7",
 
@@ -186,7 +183,7 @@ export const toDoSelector = selector({
 const [todo, doing, done] = useRecoilValue(toDoSelector);
 ```
 
-## 새로운 state 만들기 : 사용자가 현재 저장한 카테고리
+## 사용자가 원하는(현재 저장한) 카테고리만 보여줌
 
 ```ts
 // atoms.tsx
@@ -200,6 +197,8 @@ export const toDoSelector = selector({
   get: ({ get }) => {
     const toDos = get(toDoState);
     const category = get(categoryState);
+
+    // category에 따라 selector가 각각의 toDo 배열을 반환
     return toDos.filter((toDo) => toDo.category === category);
   },
 });
@@ -208,7 +207,10 @@ export const toDoSelector = selector({
 function ToDoList() {
   const toDos = useRecoilValue(toDoSelector);
 
+  // 현재의 값과, 값을 수정하는 hook
   const [category, setCategory] = useRecoilState(categoryState);
+
+  // select의 변경을 감지 => setCategory 호출
   const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
     setCategory(event.currentTarget.value);
   };
@@ -229,3 +231,109 @@ function ToDoList() {
   );
 }
 ```
+
+## categoryState에 따라 toDo 카테고리 추가
+
+```ts
+// CreateTodo.tsx
+const category = useRecoilValue(categoryState);
+const handleValid = ({ toDo }: IForm) => {
+  setToDos((oldToDos) => [
+    { text: toDo, id: Date.now(), category },
+    ...oldToDos,
+  ]);
+};
+
+// atoms.tsx
+// type : 복붙 안하게 해주는 단순한 문법
+type categories = "TO_DO" | "DOING" | "DONE";
+
+export interface IToDo {
+  text: string;
+  id: number;
+  category: categories;
+}
+
+export const categoryState = atom<categories>({
+  key: "category",
+  default: categories.TO_DO,
+});
+
+// ToDoList.tsx
+function ToDoList() {
+  const onInput = (event: React.FormEvent<HTMLSelectElement>) => {
+    setCategory(event.currentTarget.value as any);
+    /* error : setCategories 함수를 호출 할 때 인자로 string 타입인 값이 넘어감 -> as any */
+  };
+  return null;
+}
+```
+
+```ts
+// atoms.tsx
+export enum Categories {
+  "TO_DO", // 실제 값 0
+  "DOING", // 실제 값 1
+  "DONE", // 실제 값 2
+}
+export interface IToDo {
+  text: string;
+  id: number;
+  category: Categories;
+}
+
+export const categoryState = atom<Categories>({
+  key: "category",
+  default: Categories.TO_DO,
+});
+
+// ToDo.tsx
+function ToDo() {
+  return (
+    <li>
+      {category !== Categories.DOING && (
+        <button name={Categories.DOING} onClick={onClick}>
+          // error : name={Categories.DOING}은 string이어야 하는데 enum은 숫자로
+          나옴. 해결은 아래 예시 반환 Doing
+        </button>
+      )}
+      {category !== Categories.TO_DO && (
+        <button name={Categories.TO_DO} onClick={onClick}>
+          To Do
+        </button>
+      )}
+      {category !== Categories.DONE && (
+        <button name={Categories.DONE} onClick={onClick}>
+          Done
+        </button>
+      )}
+    </li>
+  );
+}
+// ToDoList.tsx
+function ToDoList() {
+  return (
+    <form action="">
+      <select value={category} onInput={onInput}>
+        <option value={Categories.TO_DO}>TO_DO</option>
+        <option value={Categories.DOING}>DOING</option>
+        <option value={Categories.DONE}>DONE</option>
+      </select>
+    </form>
+  );
+}
+```
+
+```ts
+// 해결
+export enum Categories {
+  "TO_DO" = "TO_DO", // 실제 값 "TO_DO"
+  "DOING" = "DOING", // 실제 값 "DOING"
+  "DONE" = "DONE", // 실제 값 "DONE"
+}
+```
+
+# 숙제
+
+✅ 삭제 버튼
+✅ localStorage 이용한 저장
