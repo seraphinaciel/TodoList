@@ -1,12 +1,16 @@
 # React Project
 
+- @tanstack/react-query: "5.14.1",
+- @types/react: "18.2.45",
+- @types/react-dom: "18.2.18",
+- gh-pages: "6.1.0",
 - react: "18.2.0",
-- react-router-dom: "6.20.0",
-- react-query: "3.39.3",
-- @tanstack/react-query: "^5.8.9",
-- typescript: "4.9.5",
-- react-apexcharts: "1.4.1",
+- react-dom: "18.2.0",
+- react-hook-form: "7.49.2",
+- react-router-dom: "6.21.0",
 - recoil: "0.7.7",
+- styled-components: "6.1.1",
+- typescript: "4.9.5",
 
 ## 할일 기록하기
 
@@ -336,4 +340,48 @@ export enum Categories {
 # 숙제
 
 ✅ 삭제 버튼
-✅ localStorage 이용한 저장
+✅ localStorage 이용한 저장(새로고침을 했을 때 이전의 데이터가 유지되는 기능(persistance))
+✅ 유저가 커스텀 카테고리를 생성할 수 있는 기능.
+
+## HINT
+
+1. 카테고리 추가 기능
+
+- React-hook-form을 이용해 새로운 카테고리의 제목을 받는 input을 만들어줍니다.
+- onSubmit일 때, 작동할 콜백함수인 onValid를 작성합니다. 해당 콜백함수는 input에 들어온 text값을 key값으로, value에는 빈 Array를 추가하는 기능을 가지고 있어야 합니다.
+
+```ts
+setData((prev) => {
+  return {
+    ...prev,
+    ["받아온 text"]: [],
+  };
+});
+```
+
+2. Recoil에 영속성 부여하기
+
+- recoil-persist는 Recoil 데이터에 영속성을 부여해주는 hook입니다. 단, 3줄의 코드로 state에 영속성을 부여할 수 있습니다.
+- [recoil-persist 공식문서 참조](https://www.npmjs.com/package/recoil-persist)
+- 혹시 localStorage에 저장되는 키 값을 직접 설정하고자 한다면, 아래와 같이 presistAtom을 설정하실 때 key값을 부여하시면 됩니다. 다만, 여러 키 값을 사용해야 하는 경우가 아니라면, 해당 코드를 사용할 필요는 없습니다.
+
+```ts
+const {persistAtom} = recoilPersist({
+  key: "원하는 key"
+  storage: localStorage,
+})
+
+export const recoilState = atom ({
+  key:"atom"
+  default:{
+    data:[],
+    toggle:false
+  },
+  effects_UNSTABLE: [persistAtom]
+})
+```
+
+3. State가 Array 또는 Object형태라면, 스프레드 연산자(Spread Operator)를 이용해 State를 수정해주어야 합니다.
+   [Spread Operator 공식문서 참조](https://www.javascripttutorial.net/es-next/javascript-object-spread/)
+   Object.keys()는 Obeject의 Key값을 배열로 return 해줍니다.
+   [Object.keys() 공식문서 참조](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/keys)
