@@ -1,29 +1,33 @@
 import { useForm } from "react-hook-form";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { categoryState, toDoState } from "../atoms";
+import { Categories, IToDo, categoryState, toDoState } from "../atoms";
 import styled from "styled-components";
 
 const Form = styled.form`
-  display: inline-block;
+  display: flex;
+  margin: 1rem 0;
   input {
-    margin: 1rem 0;
     padding: 6px;
     text-align: center;
     border: 0;
     width: 80%;
+    &:first-of-type {
+      border-radius: 4px 0 0 4px;
+    }
   }
 `;
+
 const Btn = styled.button`
   padding: 6px;
   border: 0;
   border-radius: 0 4px 4px 0;
   background-color: ${(props) => props.theme.point};
-
   width: 20%;
 `;
 
 interface IForm {
   toDo: string;
+  category?: string;
 }
 
 function CreateToDo() {
@@ -31,30 +35,41 @@ function CreateToDo() {
   const category = useRecoilValue(categoryState);
   const { register, handleSubmit, setValue } = useForm<IForm>();
 
-  const handleValid = ({ toDo }: IForm) => {
-    /* 할일 localStorage에 저장하기*/
+  const handleValid = ({ toDo, category: custom }: IForm) => {
+    const test = {
+      text: toDo,
+      id: Date.now(),
+      category: (custom as IToDo["category"]) || category,
+    };
 
-    // input이 제출되면 toDoState에 새 할 일이 추가됨
-    setToDos((oldToDos) => {
-      const newToDo = { text: toDo, id: Date.now(), category };
-
-      // 기능 업데이트를 사용하여 이전 상태가 올바르게 사용되는지 확인
-      const updatedToDos = [newToDo, ...oldToDos];
-
-      // updatedToDos : 새 할 일을 포함하는 배열이 생성된 다음 localStorageJSON 문자열로 저장
-      localStorage.setItem("todos", JSON.stringify(updatedToDos));
-
-      return updatedToDos;
-    });
+    setToDos((oldToDos) => [
+      {
+        text: toDo,
+        id: Date.now(),
+        category: (custom as IToDo["category"]) || category,
+      },
+      ...oldToDos,
+    ]);
 
     setValue("toDo", "");
+    setValue("category", "");
   };
 
   return (
     <Form onSubmit={handleSubmit(handleValid)}>
+      {category === Categories.OTHER ? (
+        <input
+          {...register("category", { required: "Plz write a category" })}
+          placeholder="신규 카테고리"
+          type="text"
+        />
+      ) : (
+        ""
+      )}
+
       <input
         {...register("toDo", { required: "Plz write a to do" })}
-        placeholder="Write a to do"
+        placeholder="뭘 해야 할까?"
         type="text"
       />
 

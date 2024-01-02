@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 const Form = styled.form`
   display: inline-block;
+  width: 20%;
   select {
     border-radius: 4px 0 0 4px;
     border: 0;

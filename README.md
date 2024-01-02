@@ -1,4 +1,4 @@
-# React Project
+## React Project
 
 - @tanstack/react-query: "5.14.1",
 - @types/react: "18.2.45",
@@ -249,7 +249,6 @@ const handleValid = ({ toDo }: IForm) => {
 };
 
 // atoms.tsx
-// type : 복붙 안하게 해주는 단순한 문법
 type categories = "TO_DO" | "DOING" | "DONE";
 
 export interface IToDo {
@@ -337,51 +336,19 @@ export enum Categories {
 }
 ```
 
-# 숙제
+# Local Storage Persistence(로컬 스토리지 지속성)
 
-✅ 삭제 버튼
-✅ localStorage 이용한 저장(새로고침을 했을 때 이전의 데이터가 유지되는 기능(persistance))
-✅ 유저가 커스텀 카테고리를 생성할 수 있는 기능.
+[더 알아보기](https://recoiljs.org/ko/docs/guides/atom-effects/#local-storage-persistence-%EB%A1%9C%EC%BB%AC-%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80-%EC%A7%80%EC%86%8D%EC%84%B1)
+`localStorage`는 동기식이므로 데이터를 `async/await/promise`없이 직접 받아올 수 있다.
 
-## HINT
+## Atom Effects란?
 
-1. 카테고리 추가 기능
+Atom Effects는 부수효과를 관리하고 Recoil의 atom을 초기화 또는 동기화하기 위한 API입니다. Atom Effects는 state persistence(상태 지속성), state synchronization(상태 동기화), managing history(히스토리 관리), logging(로깅) 등등 유용한 어플리케이션을 여럿 가지고 있습니다.
 
-- React-hook-form을 이용해 새로운 카테고리의 제목을 받는 input을 만들어줍니다.
-- onSubmit일 때, 작동할 콜백함수인 onValid를 작성합니다. 해당 콜백함수는 input에 들어온 text값을 key값으로, value에는 빈 Array를 추가하는 기능을 가지고 있어야 합니다.
+이는 React effects 와도 유사하지만, Atom Effects는 atom 정의의 일부로 정의되므로 각 atom은 자체적인 정책들을 지정하고 구성할 수 있습니다.
 
-```ts
-setData((prev) => {
-  return {
-    ...prev,
-    ["받아온 text"]: [],
-  };
-});
-```
+## recoil-persist 라이브러리
 
-2. Recoil에 영속성 부여하기
+- 안전성 이슈 있음
+- [공식문서](https://github.com/polemius/recoil-persist)
 
-- recoil-persist는 Recoil 데이터에 영속성을 부여해주는 hook입니다. 단, 3줄의 코드로 state에 영속성을 부여할 수 있습니다.
-- [recoil-persist 공식문서 참조](https://www.npmjs.com/package/recoil-persist)
-- 혹시 localStorage에 저장되는 키 값을 직접 설정하고자 한다면, 아래와 같이 presistAtom을 설정하실 때 key값을 부여하시면 됩니다. 다만, 여러 키 값을 사용해야 하는 경우가 아니라면, 해당 코드를 사용할 필요는 없습니다.
-
-```ts
-const {persistAtom} = recoilPersist({
-  key: "원하는 key"
-  storage: localStorage,
-})
-
-export const recoilState = atom ({
-  key:"atom"
-  default:{
-    data:[],
-    toggle:false
-  },
-  effects_UNSTABLE: [persistAtom]
-})
-```
-
-3. State가 Array 또는 Object형태라면, 스프레드 연산자(Spread Operator)를 이용해 State를 수정해주어야 합니다.
-   [Spread Operator 공식문서 참조](https://www.javascripttutorial.net/es-next/javascript-object-spread/)
-   Object.keys()는 Obeject의 Key값을 배열로 return 해줍니다.
-   [Object.keys() 공식문서 참조](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/keys)
